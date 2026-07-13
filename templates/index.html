@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Smart Mail & Letter Writer{% endblock %}
+{% block content %}
+<section class="hero-section">
+    <div class="container py-5">
+        <div class="row align-items-center g-5 py-lg-5">
+            <div class="col-lg-6">
+                <span class="badge rounded-pill text-bg-light mb-3">Professional writing made simple</span>
+                <h1 class="display-4 fw-bold">Create clear emails and letters in minutes.</h1>
+                <p class="lead opacity-75 mt-3">
+                    Prepare leave requests, banking letters, office follow-ups, device complaints,
+                    customer-service messages and study-related communication.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4">Start Writing</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">Login</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="preview-card shadow-lg">
+                    <div class="d-flex gap-2 mb-4"><span></span><span></span><span></span></div>
+                    <p class="text-muted mb-1">Subject</p>
+                    <h5>Request Regarding Practical Examination</h5>
+                    <hr>
+                    <p>Dear Sir/Madam,</p>
+                    <p>I am writing regarding a practical examination or session...</p>
+                    <p class="mb-0">Kind regards,<br><strong>Your Name</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">One workspace for every writing need</h2>
+        <p class="text-muted">Select a category, enter the important facts and receive a structured draft.</p>
+    </div>
+    <div class="row g-4">
+        {% for icon, title, text in [
+            ('briefcase', 'Office & Leave', 'Follow-ups, peer communication and leave requests.'),
+            ('bank', 'Banking & Service', 'Bank support, customer requests and payment concerns.'),
+            ('mortarboard', 'Study & University', 'Exam, project, placement, practical, viva and class matters.'),
+            ('tools', 'Complaints & Help', 'Device complaints, service issues and assistance requests.')
+        ] %}
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-card h-100">
+                <i class="bi bi-{{ icon }} fs-2"></i>
+                <h5 class="mt-3">{{ title }}</h5>
+                <p class="text-muted mb-0">{{ text }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

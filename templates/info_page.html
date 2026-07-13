@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} | RPPS Writing Assistant{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <section class="info-hero p-4 p-lg-5 mb-4">
+        <div class="row align-items-center g-4 position-relative">
+            <div class="col-lg-9">
+                <p class="text-uppercase small fw-bold text-muted mb-2">{{ page.eyebrow }}</p>
+                <h1 class="display-5 fw-bold mb-3">{{ page.title }}</h1>
+                <p class="lead text-secondary mb-0">{{ page.intro }}</p>
+            </div>
+            <div class="col-lg-3 text-lg-center">
+                <span class="info-hero-icon" aria-hidden="true"><i class="bi bi-{{ page.icon }}"></i></span>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-4">
+        {% for section in page.sections %}
+        <div class="col-md-6">
+            <section class="info-card">
+                <h2 class="h5 fw-bold mb-3">{{ section.heading }}</h2>
+                <p class="text-secondary">{{ section.body }}</p>
+                {% if section.link %}
+                <a class="info-contact-link" href="{{ section.link.href }}">{{ section.link.label }} <i class="bi bi-arrow-right"></i></a>
+                {% endif %}
+            </section>
+        </div>
+        {% endfor %}
+    </div>
+
+    <section class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4 d-flex flex-wrap gap-3 justify-content-between align-items-center">
+            <div>
+                <h2 class="h5 fw-bold mb-1">Ready to create your next writing?</h2>
+                <p class="text-muted mb-0">Use the assistant to prepare a clear, professional draft.</p>
+            </div>
+            <a class="btn btn-dark" href="{{ url_for('compose') if session.get('user_id') else url_for('login') }}">Start Writing</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

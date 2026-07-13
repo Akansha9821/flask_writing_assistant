@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="dashboard-banner p-4 p-lg-5 mb-4 d-flex flex-wrap justify-content-between align-items-center">
+    <div><p class="text-uppercase small fw-bold mb-2">User workspace</p><h1 class="fw-bold">Hello, {{ session.user_name }}</h1></div>
+    <a href="{{ url_for('compose') }}" class="btn btn-light btn-lg">New Writing</a>
+  </div>
+  <div class="row g-3 mb-4">
+    {% for icon,label,value in [
+      ('file-earmark-text','My Writings',stats.writing_count),
+      ('download','My Downloads',stats.download_count),
+      ('printer','My Prints',stats.print_count)
+    ] %}
+    <div class="col-md-4"><div class="metric-card"><i class="bi bi-{{ icon }}"></i><div><div class="metric-value">{{ value }}</div><div class="text-muted">{{ label }}</div></div></div></div>
+    {% endfor %}
+  </div>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3"><h5 class="mb-0">Recent writing</h5></div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0"><thead><tr><th>Subject</th><th>Type</th><th>Downloads</th><th>Prints</th><th></th></tr></thead>
+      <tbody>{% for item in records %}<tr><td>{{ item.subject }}</td><td>{{ item.writing_type.replace('_',' ').title() }}</td><td>{{ item.download_count }}</td><td>{{ item.print_count }}</td><td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('preview', writing_id=item.id) }}">Open</a></td></tr>{% else %}<tr><td colspan="5" class="text-center py-5">No writing created.</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+</div>
+{% endblock %}

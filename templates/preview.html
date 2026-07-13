@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Writing Preview{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between gap-3 align-items-center mb-4 no-print">
+        <div>
+            <p class="text-muted mb-1">Generated writing</p>
+            <h2 class="fw-bold mb-0">{{ writing.subject }}</h2>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-dark" onclick="countAndPrint(this)"><i class="bi bi-printer me-1"></i>Print</button>
+            <a class="btn btn-outline-primary" href="{{ url_for('download', writing_id=writing.id, file_type='pdf') }}">PDF</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('download', writing_id=writing.id, file_type='docx') }}">DOCX</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('download', writing_id=writing.id, file_type='png') }}">Image</a>
+            <a class="btn btn-primary" href="{{ url_for('compose') }}">Create Another</a>
+        </div>
+    </div>
+
+    <article class="letter-paper">
+        <div class="border-bottom pb-3 mb-4">
+            <div><strong>To:</strong> {{ writing.recipient_name or 'Sir/Madam' }}</div>
+            {% if writing.recipient_email %}<div><strong>Email:</strong> {{ writing.recipient_email }}</div>{% endif %}
+            <div><strong>Subject:</strong> {{ writing.subject }}</div>
+        </div>
+
+        <div class="writing-body">{{ writing.body }}</div>
+
+        {% if writing.signature_file %}
+        <div class="signature-preview mt-4">
+            <img src="{{ url_for('uploaded_file', filename=writing.signature_file) }}" alt="Signature">
+            <div class="small text-muted">
+                {{ 'Handwritten signature image' if writing.signature_type == 'uploaded' else 'Digitally drawn signature' }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if writing.attachment %}
+        <section class="attachment-section mt-5">
+            <h6 class="text-uppercase text-muted">Attachment</h6>
+            <div class="attachment-card">
+                <i class="bi bi-paperclip fs-4"></i>
+                <div class="flex-grow-1">
+                    <strong>{{ writing.attachment_original_name or writing.attachment }}</strong>
+                    <div class="small text-muted">Attached with this mail or letter</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary no-print"
+                   href="{{ url_for('uploaded_file', filename=writing.attachment) }}">
+                    Open attachment
+                </a>
+            </div>
+        </section>
+        {% endif %}
+    </article>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function countAndPrint(button) {
+    button.disabled = true;
+
+    try {
+        const response = await fetch("{{ url_for('count_print', writing_id=writing.id) }}", {
+            method: "POST",
+            headers: {"Accept": "application/json"}
+        });
+        if (!response.ok) {
+            throw new Error("Unable to update the print count");
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        button.disabled = false;
+        window.print();
+    }
+}
+</script>
+{% endblock %}

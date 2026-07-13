@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Create Writing{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+          <span class="badge text-bg-primary">RPPS Smart Composer</span>
+          <h2 class="fw-bold mt-2">Create professional writing</h2>
+          <form method="post" enctype="multipart/form-data" id="composeForm" class="mt-4">
+            <input type="hidden" name="signature_data" id="signatureData">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Type of writing</label>
+                <select class="form-select" name="writing_type" id="writingType">
+                  {% for key,label in writing_types.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Language</label>
+                <select class="form-select" name="language" id="language">
+                  {% for code,label in languages.items() %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Area</label>
+                <select class="form-select" name="category_group" id="categoryGroup"></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Area/category</label>
+                <select class="form-select" name="category" id="category"></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Receiver name/title</label>
+                <input class="form-control" name="recipient_name">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Receiver email</label>
+                <input class="form-control" type="email" name="recipient_email">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Subject or meeting title</label>
+                <input class="form-control" name="subject">
+              </div>
+              <div class="col-12">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                  <label class="form-label mb-0">Writing details</label>
+                  <button type="button" class="btn btn-sm btn-outline-primary" id="voiceButton">
+                    <i class="bi bi-mic"></i> Start voice input
+                  </button>
+                </div>
+                <textarea class="form-control" rows="10" name="details" id="details" required></textarea>
+                <div class="form-text" id="voiceStatus">Voice input depends on browser support and microphone permission.</div>
+              </div>
+
+              <div class="col-12">
+                <div class="ocr-panel">
+                  <h5><i class="bi bi-card-image me-2"></i>Handwritten image to text</h5>
+                  <div class="row g-2 align-items-end">
+                    <div class="col-md-7"><input class="form-control" type="file" id="handwritingImage" accept=".png,.jpg,.jpeg"></div>
+                    <div class="col-md-3">
+                      <select class="form-select" id="ocrLanguage">
+                        <option value="eng">English OCR</option>
+                        <option value="hin">Hindi OCR</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2"><button class="btn btn-outline-primary w-100" type="button" id="extractText">Extract</button></div>
+                  </div>
+                  <div class="form-text" id="ocrStatus">Extracted text will be added to Writing details.</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Attachment</label>
+                <input class="form-control" type="file" name="attachment">
+              </div>
+
+              <div class="col-12">
+                <div class="signature-panel">
+                  <h5>Signature creation</h5>
+                  <ul class="nav nav-pills mb-3">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#drawTab" type="button">Draw signature</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#uploadTab" type="button">Upload signature</button></li>
+                  </ul>
+                  <div class="tab-content">
+                    <div class="tab-pane fade show active" id="drawTab">
+                      <canvas id="signatureCanvas" width="760" height="220"></canvas>
+                      <button class="btn btn-sm btn-outline-secondary mt-2" type="button" id="clearSignature">Clear</button>
+                    </div>
+                    <div class="tab-pane fade" id="uploadTab">
+                      <input class="form-control" type="file" name="signature_upload" accept=".png,.jpg,.jpeg">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-lg mt-4"><i class="bi bi-stars me-2"></i>Generate Writing</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="tips-card sticky-lg-top">
+        <h5>Writing assistant tools</h5>
+        <p class="text-muted">Use voice dictation, OCR for handwritten notes, translation, attachments and a real signature.</p>
+        <div class="alert alert-warning small mb-0">Review OCR and translated text before sending. Handwriting accuracy depends on image clarity.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script id="categoryTreeData" type="application/json">{{ category_tree|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/composer.js') }}"></script>
+{% endblock %}

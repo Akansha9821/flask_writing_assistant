@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Administrator Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid px-lg-5 py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div><span class="badge text-bg-dark">Administrator</span><h1 class="fw-bold mt-2 mb-0">RPPS Admin Dashboard</h1></div>
+    <div>
+      <a class="btn btn-outline-primary" href="{{ url_for('admin_export', file_type='csv') }}">Export CSV</a>
+      <a class="btn btn-primary" href="{{ url_for('admin_export', file_type='xlsx') }}">Export Excel</a>
+    </div>
+  </div>
+  <div class="row g-3 mb-4">
+    {% for icon,label,value in [
+      ('people','Total Users',totals.total_users),
+      ('file-earmark-text','Total Writings',totals.total_writings),
+      ('download','Total Downloads',totals.total_downloads),
+      ('printer','Total Prints',totals.total_prints)
+    ] %}
+    <div class="col-md-6 col-xl-3"><div class="metric-card"><i class="bi bi-{{ icon }}"></i><div><div class="metric-value">{{ value }}</div><div class="text-muted">{{ label }}</div></div></div></div>
+    {% endfor %}
+  </div>
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3"><h5 class="mb-0">Registered user activity</h5></div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead><tr><th>User</th><th>Organization</th><th>Writing count</th><th>Downloads</th><th>Prints</th><th>Registered</th></tr></thead>
+        <tbody>
+        {% for user in users %}
+          <tr>
+            <td><strong>{{ user.name }}</strong><div class="small text-muted">{{ user.email }}</div></td>
+            <td>{{ user.organization or '-' }}<div class="small text-muted">{{ user.designation }}</div></td>
+            <td>{{ user.writing_count }}</td><td>{{ user.download_count }}</td><td>{{ user.print_count }}</td><td>{{ user.created_at }}</td>
+          </tr>
+        {% else %}<tr><td colspan="6" class="text-center py-5">No users registered.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
