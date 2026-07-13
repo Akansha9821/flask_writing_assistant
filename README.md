@@ -103,6 +103,6 @@ Voice dictation uses the browser Web Speech API. It requires microphone permissi
 
 The session is refreshed on each request and configured for up to ten years unless the user logs out. Production systems should normally use a shorter duration and secure HTTPS cookies.
 
-### Run Command
+### code push Command
 
  git push --set-upstream fwa main
