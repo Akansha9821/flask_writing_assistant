@@ -22,6 +22,74 @@ document.addEventListener("DOMContentLoaded", () => {
   if (localeMap[prefix]) language.value = localeMap[prefix];
 
   const details = document.getElementById("details");
+  const editor = document.getElementById("detailsEditor");
+  const form = document.getElementById("composeForm");
+  const syncDetails = () => { details.value = editor.innerText.trim(); };
+  const setEditorText = text => {
+    editor.textContent = text;
+    syncDetails();
+  };
+  const appendEditorText = text => {
+    setEditorText([editor.innerText.trim(), text.trim()].filter(Boolean).join("\n"));
+  };
+
+  document.querySelectorAll("[data-command]").forEach(button => {
+    button.addEventListener("click", () => {
+      editor.focus();
+      document.execCommand(button.dataset.command, false, null);
+      syncDetails();
+    });
+  });
+  editor.addEventListener("input", syncDetails);
+  form.addEventListener("submit", event => {
+    syncDetails();
+    if (!details.value) {
+      event.preventDefault();
+      editor.focus();
+      editor.classList.add("is-invalid");
+    }
+  });
+  editor.addEventListener("input", () => editor.classList.remove("is-invalid"));
+
+  const subject = document.getElementById("subject");
+  const mainSubject = document.getElementById("mainSubject");
+  const suggestionStatus = document.getElementById("suggestionStatus");
+  let suggestionRequest = 0;
+  const requestSuggestion = async () => {
+    const requestNumber = ++suggestionRequest;
+    suggestionStatus.textContent = "Creating a suggestion…";
+    try {
+      const response = await fetch("/generate-predefined-content", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          area: group.value,
+          category: category.value,
+          start_date: document.getElementById("startDate").value,
+          end_date: document.getElementById("endDate").value,
+          main_subject: mainSubject.value
+        })
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || "Unable to create a suggestion.");
+      if (requestNumber !== suggestionRequest) return;
+      subject.value = result.title;
+      setEditorText(result.description);
+      suggestionStatus.textContent = "Suggested title and description added. You can edit both before generating.";
+    } catch (error) {
+      suggestionStatus.textContent = error.message;
+    }
+  };
+  document.getElementById("suggestContent").addEventListener("click", requestSuggestion);
+  let suggestionTimer;
+  [mainSubject, document.getElementById("startDate"), document.getElementById("endDate")]
+    .forEach(control => control.addEventListener("input", () => {
+      window.clearTimeout(suggestionTimer);
+      suggestionTimer = window.setTimeout(requestSuggestion, 650);
+    }));
+  category.addEventListener("change", requestSuggestion);
+  group.addEventListener("change", requestSuggestion);
+  requestSuggestion();
   const voiceButton = document.getElementById("voiceButton");
   const voiceStatus = document.getElementById("voiceStatus");
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -39,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) finalText += event.results[i][0].transcript + " ";
       }
-      if (finalText) details.value += (details.value ? " " : "") + finalText;
+      if (finalText) appendEditorText(finalText);
     };
     recognition.onend = () => {
       voiceButton.classList.remove("btn-danger");
@@ -66,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/ocr", {method:"POST", body:data});
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
-      details.value += (details.value ? "\n" : "") + result.text;
+      appendEditorText(result.text);
       status.textContent = "Text added. Review and correct it before generating.";
     } catch (error) {
       status.textContent = error.message;

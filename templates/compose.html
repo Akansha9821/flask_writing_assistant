@@ -41,7 +41,25 @@
               </div>
               <div class="col-12">
                 <label class="form-label">Subject or meeting title</label>
-                <input class="form-control" name="subject">
+                <input class="form-control" name="subject" id="subject">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Start date</label>
+                <input class="form-control" type="date" id="startDate" value="2026-07-10">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">End date</label>
+                <input class="form-control" type="date" id="endDate" value="2026-07-15">
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-primary w-100" id="suggestContent">
+                  <i class="bi bi-magic me-1"></i> Suggest content
+                </button>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Main subject or reason</label>
+                <input class="form-control" id="mainSubject" placeholder="e.g. the status of my application for the AI Engineering Manager position">
+                <div class="form-text" id="suggestionStatus">Choose an area and category, then enter the main subject to get a suggested title and description.</div>
               </div>
               <div class="col-12">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
@@ -50,7 +68,18 @@
                     <i class="bi bi-mic"></i> Start voice input
                   </button>
                 </div>
-                <textarea class="form-control" rows="10" name="details" id="details" required></textarea>
+                <div class="wysiwyg-editor border rounded-3 overflow-hidden">
+                  <div class="wysiwyg-toolbar" role="toolbar" aria-label="Text formatting">
+                    <button type="button" data-command="bold" title="Bold"><i class="bi bi-type-bold"></i></button>
+                    <button type="button" data-command="italic" title="Italic"><i class="bi bi-type-italic"></i></button>
+                    <button type="button" data-command="underline" title="Underline"><i class="bi bi-type-underline"></i></button>
+                    <button type="button" data-command="insertUnorderedList" title="Bulleted list"><i class="bi bi-list-ul"></i></button>
+                    <button type="button" data-command="insertOrderedList" title="Numbered list"><i class="bi bi-list-ol"></i></button>
+                    <button type="button" data-command="removeFormat" title="Clear formatting"><i class="bi bi-eraser"></i></button>
+                  </div>
+                  <div id="detailsEditor" class="wysiwyg-content" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Describe the issue, reason and requested action."></div>
+                </div>
+                <textarea name="details" id="details" class="visually-hidden" required></textarea>
                 <div class="form-text" id="voiceStatus">Voice input depends on browser support and microphone permission.</div>
               </div>
 

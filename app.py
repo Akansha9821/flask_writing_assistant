@@ -4,9 +4,9 @@ import os
 import re
 import sqlite3
 import uuid
-from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
+from datetime import datetime, timedelta
 
 import pandas as pd
 from docx import Document
@@ -64,9 +64,8 @@ DATA_DIR.mkdir(exist_ok=True)
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 WRITING_TYPES = {
-    "formal_email": "Formal Email",
-    "informal_email": "Informal Email",
-    "formal_letter": "Formal Letter",
+    "email": "Email",
+    "letter": "Letter",
     "application": "Application",
     "mom": "Minutes of Meeting (MOM)",
 }
@@ -74,58 +73,249 @@ WRITING_TYPES = {
 CATEGORY_TREE = {
     "Office & Employment": {
         "leave_request": "Leave Request",
+        "sick_leave": "Sick Leave Request",
         "office_followup": "Office Follow-up",
         "peer_communication": "Communication with Peers",
         "manager_request": "Manager Request",
         "hr_request": "HR Request",
         "work_from_home": "Work From Home Request",
+        "attendance_correction": "Attendance Correction Request",
+        "shift_change": "Shift Change Request",
+        "promotion_request": "Promotion Request",
+        "salary_increment": "Salary Increment Request",
+        "transfer_request": "Transfer Request",
         "resignation": "Resignation Application",
+        "notice_period_negotiation": "Notice Period Negotiation",
         "experience_letter": "Experience Letter Request",
+        "relieving_letter": "Relieving Letter Request",
+        "employment_verification": "Employment Verification Request",
+        "employee_appreciation": "Employee Appreciation",
+        "workplace_complaint": "Workplace Complaint",
     },
-    "Banking & Finance": {
+    "Recruitment & Job Communication": {
+        "job_description_request": "Request Job Description",
+        "job_interest_confirmation": "Confirm Interest in Job",
+        "resume_submission": "Share Resume or Portfolio",
+        "job_application": "Job Application",
+        "internship_application": "Internship Application",
+        "recruiter_followup": "Recruiter Follow-up",
+        "application_status_followup": "Application Status Follow-up",
+        "interview_availability": "Share Interview Availability",
+        "interview_confirmation": "Interview Confirmation",
+        "interview_rescheduling": "Interview Rescheduling Request",
+        "interview_cancellation": "Interview Cancellation",
+        "post_interview_thank_you": "Post-interview Thank-you",
+        "interview_feedback": "Interview Feedback Request",
+        "next_round_followup": "Next-round Follow-up",
+        "salary_discussion": "Salary Discussion",
+        "salary_negotiation": "Salary Negotiation",
+        "document_submission": "Candidate Document Submission",
+        "background_verification": "Background Verification",
+        "reference_submission": "Professional Reference Submission",
+        "offer_letter_followup": "Offer Letter Follow-up",
+        "offer_acceptance": "Offer Acceptance",
+        "offer_rejection": "Offer Rejection",
+        "joining_confirmation": "Joining Date Confirmation",
+        "joining_extension": "Joining Date Extension Request",
+        "application_withdrawal": "Job Application Withdrawal",
+        "referral_request": "Job Referral Request",
+    },
+   "Banking & Finance": {
         "bank_service": "Bank Customer Service",
+        "account_opening": "Bank Account Opening Request",
+        "account_statement": "Bank Statement Request",
         "payment_issue": "Payment Issue",
+        "payment_confirmation": "Payment Confirmation",
         "refund_request": "Refund Request",
+        "refund_followup": "Refund Follow-up",
         "transaction_dispute": "Transaction Dispute",
+        "unauthorized_transaction": "Unauthorized Transaction Report",
+        "failed_transaction": "Failed Transaction Complaint",
         "account_update": "Account Update Request",
         "loan_request": "Loan-related Request",
+        "loan_application": "Loan Application",
+        "loan_status_followup": "Loan Status Follow-up",
+        "credit_debit_card_issue": "Credit or Debit Card Issue",
+        "emi_request": "EMI-related Request",
+        "insurance_claim": "Insurance Claim",
+        "invoice_submission": "Invoice Submission",
+        "invoice_correction": "Invoice Correction",
+        "payment_reminder": "Payment Reminder",
+        "tax_document_request": "Tax Document Request",
     },
     "Customer & Product Service": {
+        "product_enquiry": "Product Enquiry",
+        "service_enquiry": "Service Enquiry",
         "device_complaint": "Device Complaint",
         "customer_service": "Customer Service Request",
+        "technical_support": "Technical Support Request",
         "product_complaint": "Product Complaint",
+        "service_complaint": "Service Complaint",
+        "complaint_escalation": "Complaint Escalation",
         "replacement_request": "Replacement Request",
+        "refund_request": "Refund Request",
+        "cancellation_request": "Cancellation Request",
         "warranty_request": "Warranty Request",
+        "delivery_delay": "Delivery Delay Complaint",
+        "order_status": "Order Status Request",
+        "account_access_issue": "Account Access Issue",
         "service_followup": "Service Follow-up",
+        "service_feedback": "Product or Service Feedback",
     },
     "Study & University": {
+        "admission_enquiry": "Admission Enquiry",
+        "course_enquiry": "Course Enquiry",
         "exam": "Exam Related",
+        "exam_leave": "Exam Leave Request",
+        "exam_schedule": "Exam Schedule Enquiry",
         "project": "Project Related",
+        "project_submission": "Project Submission",
+        "project_guide_followup": "Project Guide Follow-up",
         "placement": "Placement Related",
         "practical": "Practical Related",
+        "practical_rescheduling": "Practical Rescheduling Request",
         "viva": "Viva Related",
+        "viva_rescheduling": "Viva Rescheduling Request",
+        "assignment_submission": "Assignment Submission",
+        "assignment_extension": "Assignment Extension Request",
         "fees_payment": "Fees or Payment Related",
         "class": "Class Related",
         "attendance": "Attendance Related",
+        "attendance_correction": "Attendance Correction Request",
         "academic_complaint": "Academic Complaint",
         "certificate": "Certificate Request",
+        "result_correction": "Result Correction Request",
         "scholarship": "Scholarship Application",
+        "recommendation_letter": "Recommendation Letter Request",
+        "internship_permission": "Internship Permission Request",
+        "research_proposal": "Research Proposal Submission",
     },
-    "Meeting & Administration": {
+     "Business & Corporate": {
+        "business_proposal": "Business Proposal",
+        "partnership_proposal": "Partnership Proposal",
+        "client_introduction": "Client Introduction",
+        "project_update": "Project Status Update",
+        "project_delay": "Project Delay Notification",
+        "business_followup": "Business Follow-up",
+        "quotation_request": "Quotation Request",
+        "quotation_submission": "Quotation Submission",
+        "contract_discussion": "Contract Discussion",
+        "vendor_communication": "Vendor Communication",
+        "customer_followup": "Customer Follow-up",
+        "business_invitation": "Business Invitation",
+        "company_announcement": "Company Announcement",
+        "mou_request": "Memorandum of Understanding Request",
+    },
+     "Meeting & Administration": {
+        "meeting_request": "Meeting Request",
+        "meeting_invitation": "Meeting Invitation",
+        "meeting_confirmation": "Meeting Confirmation",
+        "meeting_rescheduling": "Meeting Rescheduling Request",
+        "meeting_cancellation": "Meeting Cancellation",
+        "meeting_agenda": "Meeting Agenda",
         "mom_internal": "Internal Meeting MOM",
         "mom_client": "Client Meeting MOM",
         "mom_project": "Project Meeting MOM",
         "mom_review": "Review Meeting MOM",
+        "action_item_summary": "Action-item Summary",
+        "decision_summary": "Decision Summary",
+        "meeting_followup": "Meeting Follow-up",
+        "participant_reminder": "Meeting Participant Reminder",
         "general_application": "General Application",
         "permission_application": "Permission Application",
         "complaint_application": "Complaint Application",
     },
+     "Government & Legal": {
+        "government_application": "Government Application",
+        "information_request": "Official Information Request",
+        "certificate_application": "Certificate Application",
+        "license_permit_request": "Licence or Permit Request",
+        "police_complaint": "Police Complaint",
+        "legal_notice": "Legal Notice",
+        "legal_response": "Response to Legal Notice",
+        "consumer_complaint": "Consumer Complaint",
+        "rti_application": "RTI Application",
+        "municipal_complaint": "Municipal Complaint",
+        "document_correction": "Official Document Correction Request",
+        "grievance_submission": "Official Grievance Submission",
+    },"Healthcare": {
+        "appointment_request": "Medical Appointment Request",
+        "appointment_rescheduling": "Appointment Rescheduling Request",
+        "medical_leave": "Medical Leave Request",
+        "medical_report": "Medical Report Request",
+        "prescription_request": "Prescription Request",
+        "insurance_approval": "Medical Insurance Approval Request",
+        "hospital_complaint": "Hospital Complaint",
+        "billing_enquiry": "Medical Billing Enquiry",
+        "test_result_followup": "Medical Test Result Follow-up",
+        "medical_certificate": "Medical Certificate Request",
+    },
+
+    "Sales & Marketing": {
+        "sales_introduction": "Sales Introduction",
+        "product_promotion": "Product Promotion",
+        "lead_followup": "Sales Lead Follow-up",
+        "customer_outreach": "Customer Outreach",
+        "marketing_proposal": "Marketing Proposal",
+        "campaign_approval": "Marketing Campaign Approval",
+        "sponsorship_request": "Sponsorship Request",
+        "collaboration_request": "Collaboration Request",
+        "event_promotion": "Event Promotion",
+        "customer_feedback": "Customer Feedback Request",
+        "subscription_renewal": "Subscription Renewal",
+        "discount_offer": "Discount Offer",
+    },
+
+    "IT & Technical Communication": {
+        "bug_report": "Bug Report",
+        "access_request": "System Access Request",
+        "password_reset": "Password Reset Request",
+        "software_installation": "Software Installation Request",
+        "system_downtime": "System Downtime Notification",
+        "security_incident": "Security Incident Report",
+        "data_request": "Data Request",
+        "feature_request": "Software Feature Request",
+        "deployment_approval": "Deployment Approval Request",
+        "technical_followup": "Technical Issue Follow-up",
+        "account_deactivation": "Account Deactivation Request",
+    },
+
+    "Notices & Announcements": {
+        "general_notice": "General Notice",
+        "holiday_notice": "Holiday Notice",
+        "event_announcement": "Event Announcement",
+        "policy_update": "Policy Update",
+        "maintenance_notice": "Maintenance Notice",
+        "meeting_notice": "Meeting Notice",
+        "examination_notice": "Examination Notice",
+        "office_closure": "Office Closure Notice",
+        "emergency_announcement": "Emergency Announcement",
+        "deadline_reminder": "Deadline Reminder",
+    },
+
+    "Personal Communication": {
+        "personal_invitation": "Personal Invitation",
+        "thank_you": "Thank-you Message",
+        "apology": "Apology Message",
+        "congratulations": "Congratulations Message",
+        "condolence": "Condolence Message",
+        "birthday_wish": "Birthday Wish",
+        "festival_greeting": "Festival Greeting",
+        "personal_request": "Personal Request",
+        "friendly_followup": "Friendly Follow-up",
+        "family_communication": "Family Communication",
+    },
+
     "General": {
         "help": "General Help",
         "complaint": "General Complaint",
         "request": "General Request",
+        "enquiry": "General Enquiry",
+        "followup": "General Follow-up",
         "invitation": "Invitation",
         "thank_you": "Thank-you Message",
+        "apology": "Apology Message",
+        "feedback": "General Feedback",
     },
 }
 
@@ -331,6 +521,924 @@ INFO_PAGES = {
     },
 }
 
+
+PREDEFINED_TITLES = {
+    "Office & Employment": {
+        "leave_request": "Request for Leave",
+        "sick_leave": "Request for Sick Leave",
+        "office_followup": "Follow-up Regarding Office Request",
+        "peer_communication": "Regarding Team Communication",
+        "manager_request": "Request for Manager's Assistance",
+        "hr_request": "Request for HR Assistance",
+        "work_from_home": "Request to Work from Home",
+        "attendance_correction": "Request for Attendance Correction",
+        "shift_change": "Request for Shift Change",
+        "promotion_request": "Request for Promotion Consideration",
+        "salary_increment": "Request for Salary Revision",
+        "transfer_request": "Request for Department or Location Transfer",
+        "resignation": "Formal Resignation from My Position",
+        "notice_period_negotiation": "Request for Notice Period Revision",
+        "experience_letter": "Request for Experience Letter",
+        "relieving_letter": "Request for Relieving Letter",
+        "employment_verification": "Request for Employment Verification",
+        "employee_appreciation": "Appreciation for Outstanding Contribution",
+        "workplace_complaint": "Formal Workplace Complaint",
+    },
+
+    "Recruitment & Job Communication": {
+        "job_description_request": "Request for Complete Job Description",
+        "job_interest_confirmation": "Confirmation of Interest in the Position",
+        "resume_submission": "Application and Resume for [Job Title]",
+        "job_application": "Application for the Position of [Job Title]",
+        "internship_application": "Application for [Internship Title] Internship",
+        "recruiter_followup": "Follow-up Regarding [Job Title] Opportunity",
+        "application_status_followup": "Follow-up on Application for [Job Title]",
+        "interview_availability": "Interview Availability for [Job Title]",
+        "interview_confirmation": "Confirmation of Interview for [Job Title]",
+        "interview_rescheduling": "Request to Reschedule Interview for [Job Title]",
+        "interview_cancellation": "Interview Cancellation for [Job Title]",
+        "post_interview_thank_you": "Thank You for the [Job Title] Interview",
+        "interview_feedback": "Request for Interview Feedback",
+        "next_round_followup": "Follow-up Regarding the Next Interview Round",
+        "salary_discussion": "Discussion Regarding Compensation for [Job Title]",
+        "salary_negotiation": "Request to Review the Compensation Offer",
+        "document_submission": "Submission of Candidate Documents",
+        "background_verification": "Documents for Background Verification",
+        "reference_submission": "Submission of Professional References",
+        "offer_letter_followup": "Follow-up Regarding Offer Letter for [Job Title]",
+        "offer_acceptance": "Acceptance of Offer for [Job Title]",
+        "offer_rejection": "Response to Employment Offer for [Job Title]",
+        "joining_confirmation": "Confirmation of Joining Date",
+        "joining_extension": "Request for Extension of Joining Date",
+        "application_withdrawal": "Withdrawal of Application for [Job Title]",
+        "referral_request": "Request for Referral for [Job Title]",
+    },
+
+    "Banking & Finance": {
+        "bank_service": "Request for Banking Assistance",
+        "account_opening": "Request to Open a Bank Account",
+        "account_statement": "Request for Bank Account Statement",
+        "payment_issue": "Assistance Required Regarding Payment Issue",
+        "payment_confirmation": "Confirmation of Payment",
+        "refund_request": "Request for Refund",
+        "refund_followup": "Follow-up Regarding Pending Refund",
+        "transaction_dispute": "Dispute Regarding Transaction [Transaction ID]",
+        "unauthorized_transaction": "Urgent: Unauthorized Transaction Report",
+        "failed_transaction": "Complaint Regarding Failed Transaction",
+        "account_update": "Request to Update Account Information",
+        "loan_request": "Enquiry Regarding Loan Services",
+        "loan_application": "Application for [Loan Type] Loan",
+        "loan_status_followup": "Follow-up on Loan Application",
+        "credit_debit_card_issue": "Assistance Required for Card Issue",
+        "emi_request": "Request Regarding EMI Facility",
+        "insurance_claim": "Submission of Insurance Claim",
+        "invoice_submission": "Submission of Invoice [Invoice Number]",
+        "invoice_correction": "Request for Correction of Invoice",
+        "payment_reminder": "Reminder for Outstanding Payment",
+        "tax_document_request": "Request for Tax-related Documents",
+    },
+
+    "Customer & Product Service": {
+        "product_enquiry": "Enquiry Regarding [Product Name]",
+        "service_enquiry": "Enquiry Regarding [Service Name]",
+        "device_complaint": "Complaint Regarding [Device Name]",
+        "customer_service": "Request for Customer Service Assistance",
+        "technical_support": "Technical Support Required for [Product Name]",
+        "product_complaint": "Complaint Regarding [Product Name]",
+        "service_complaint": "Complaint Regarding [Service Name]",
+        "complaint_escalation": "Escalation of Unresolved Complaint",
+        "replacement_request": "Request for Product Replacement",
+        "refund_request": "Request for Product or Service Refund",
+        "cancellation_request": "Request to Cancel [Order or Service]",
+        "warranty_request": "Warranty Service Request for [Product Name]",
+        "delivery_delay": "Complaint Regarding Delayed Delivery",
+        "order_status": "Request for Order Status – [Order ID]",
+        "account_access_issue": "Unable to Access Customer Account",
+        "service_followup": "Follow-up Regarding Service Request",
+        "service_feedback": "Feedback Regarding [Product or Service Name]",
+    },
+
+    "Study & University": {
+        "admission_enquiry": "Enquiry Regarding Admission to [Course Name]",
+        "course_enquiry": "Request for Information About [Course Name]",
+        "exam": "Request Regarding [Subject Name] Examination",
+        "exam_leave": "Request for Examination Leave",
+        "exam_schedule": "Enquiry Regarding Examination Schedule",
+        "project": "Request Regarding Academic Project",
+        "project_submission": "Submission of [Project Title]",
+        "project_guide_followup": "Follow-up Regarding Project Guidance",
+        "placement": "Request Regarding Placement Process",
+        "practical": "Request Regarding Practical Examination",
+        "practical_rescheduling": "Request to Reschedule Practical Examination",
+        "viva": "Request Regarding Final Viva-Voce",
+        "viva_rescheduling": "Request to Reschedule Viva-Voce",
+        "assignment_submission": "Submission of [Assignment Title]",
+        "assignment_extension": "Request for Assignment Submission Extension",
+        "fees_payment": "Request Regarding Fee Payment",
+        "class": "Request Regarding [Subject Name] Class",
+        "attendance": "Request Regarding Attendance Record",
+        "attendance_correction": "Request for Attendance Correction",
+        "academic_complaint": "Formal Academic Complaint",
+        "certificate": "Request for Academic Certificate",
+        "result_correction": "Request for Correction in Examination Result",
+        "scholarship": "Application for [Scholarship Name]",
+        "recommendation_letter": "Request for Letter of Recommendation",
+        "internship_permission": "Request for Internship Permission",
+        "research_proposal": "Submission of Research Proposal – [Title]",
+    },
+
+    "Business & Corporate": {
+        "business_proposal": "Business Proposal for [Project or Service]",
+        "partnership_proposal": "Proposal for Business Partnership",
+        "client_introduction": "Introduction and Business Collaboration Opportunity",
+        "project_update": "Project Status Update – [Project Name]",
+        "project_delay": "Notification of Delay in [Project Name]",
+        "business_followup": "Follow-up Regarding Business Discussion",
+        "quotation_request": "Request for Quotation – [Product or Service]",
+        "quotation_submission": "Submission of Quotation – [Quotation Number]",
+        "contract_discussion": "Discussion Regarding [Contract Name]",
+        "vendor_communication": "Regarding Vendor Services for [Project Name]",
+        "customer_followup": "Follow-up Regarding [Product or Service]",
+        "business_invitation": "Invitation to [Business Event or Meeting]",
+        "company_announcement": "Company Announcement – [Subject]",
+        "mou_request": "Proposal for Memorandum of Understanding",
+    },
+
+    "Meeting & Administration": {
+        "meeting_request": "Request to Schedule a Meeting",
+        "meeting_invitation": "Invitation: [Meeting Subject]",
+        "meeting_confirmation": "Confirmation of Meeting on [Date]",
+        "meeting_rescheduling": "Request to Reschedule [Meeting Subject]",
+        "meeting_cancellation": "Cancellation of Meeting Scheduled for [Date]",
+        "meeting_agenda": "Agenda for [Meeting Name]",
+        "mom_internal": "Minutes of Internal Meeting – [Date]",
+        "mom_client": "Minutes of Client Meeting – [Client Name]",
+        "mom_project": "Project Meeting Minutes – [Project Name]",
+        "mom_review": "Minutes of Review Meeting – [Date]",
+        "action_item_summary": "Action Items from [Meeting Name]",
+        "decision_summary": "Summary of Decisions from [Meeting Name]",
+        "meeting_followup": "Follow-up on [Meeting Name]",
+        "participant_reminder": "Reminder: [Meeting Name] on [Date]",
+        "general_application": "Application Regarding [Subject]",
+        "permission_application": "Request for Permission to [Purpose]",
+        "complaint_application": "Formal Complaint Regarding [Issue]",
+    },
+
+    "Government & Legal": {
+        "government_application": "Application Regarding [Service or Scheme]",
+        "information_request": "Request for Official Information",
+        "certificate_application": "Application for [Certificate Name]",
+        "license_permit_request": "Application for [Licence or Permit Name]",
+        "police_complaint": "Formal Complaint Regarding [Incident]",
+        "legal_notice": "Legal Notice Regarding [Matter]",
+        "legal_response": "Response to Legal Notice Dated [Date]",
+        "consumer_complaint": "Consumer Complaint Regarding [Product or Service]",
+        "rti_application": "Application Under the Right to Information Act",
+        "municipal_complaint": "Complaint Regarding Municipal Service",
+        "document_correction": "Request for Correction in Official Document",
+        "grievance_submission": "Submission of Grievance Regarding [Issue]",
+    },
+
+    "Healthcare": {
+        "appointment_request": "Request for Medical Appointment",
+        "appointment_rescheduling": "Request to Reschedule Medical Appointment",
+        "medical_leave": "Request for Medical Leave",
+        "medical_report": "Request for Medical Report",
+        "prescription_request": "Request for Prescription",
+        "insurance_approval": "Request for Medical Insurance Approval",
+        "hospital_complaint": "Complaint Regarding Hospital Service",
+        "billing_enquiry": "Enquiry Regarding Medical Bill",
+        "test_result_followup": "Follow-up Regarding Medical Test Results",
+        "medical_certificate": "Request for Medical Certificate",
+    },
+
+    "Sales & Marketing": {
+        "sales_introduction": "Introduction to [Product or Service]",
+        "product_promotion": "Special Offer on [Product Name]",
+        "lead_followup": "Follow-up Regarding [Product or Service]",
+        "customer_outreach": "Discover How [Product Name] Can Help You",
+        "marketing_proposal": "Marketing Proposal for [Campaign Name]",
+        "campaign_approval": "Request for Approval of [Campaign Name]",
+        "sponsorship_request": "Sponsorship Request for [Event or Project]",
+        "collaboration_request": "Proposal for Marketing Collaboration",
+        "event_promotion": "Invitation to [Event Name]",
+        "customer_feedback": "Request for Your Valuable Feedback",
+        "subscription_renewal": "Reminder to Renew Your Subscription",
+        "discount_offer": "Special Discount Offer on [Product or Service]",
+    },
+
+    "IT & Technical Communication": {
+        "bug_report": "Bug Report: [Brief Issue Description]",
+        "access_request": "Request for Access to [System Name]",
+        "password_reset": "Request to Reset Account Password",
+        "software_installation": "Request to Install [Software Name]",
+        "system_downtime": "System Downtime Notification",
+        "security_incident": "Urgent: Security Incident Report",
+        "data_request": "Request for [Data or Report Name]",
+        "feature_request": "Feature Request: [Feature Name]",
+        "deployment_approval": "Request for Deployment Approval",
+        "technical_followup": "Follow-up Regarding Technical Issue",
+        "account_deactivation": "Request for Account Deactivation",
+    },
+
+    "Notices & Announcements": {
+        "general_notice": "Notice: [Subject]",
+        "holiday_notice": "Holiday Notice for [Date or Occasion]",
+        "event_announcement": "Announcement: [Event Name]",
+        "policy_update": "Important Update to [Policy Name]",
+        "maintenance_notice": "Scheduled Maintenance Notification",
+        "meeting_notice": "Notice of Meeting on [Date]",
+        "examination_notice": "Examination Notice – [Exam Name]",
+        "office_closure": "Office Closure Notice",
+        "emergency_announcement": "Urgent Announcement: [Subject]",
+        "deadline_reminder": "Reminder: Deadline for [Task]",
+    },
+
+    "Personal Communication": {
+        "personal_invitation": "Invitation to [Event Name]",
+        "thank_you": "Thank You for [Reason]",
+        "apology": "Sincere Apology Regarding [Matter]",
+        "congratulations": "Congratulations on [Achievement]",
+        "condolence": "Heartfelt Condolences",
+        "birthday_wish": "Happy Birthday, [Name]!",
+        "festival_greeting": "Warm Wishes for [Festival Name]",
+        "personal_request": "Personal Request Regarding [Subject]",
+        "friendly_followup": "Following Up Regarding [Subject]",
+        "family_communication": "Regarding [Family Matter]",
+    },
+
+    "General": {
+        "help": "Request for Assistance Regarding [Subject]",
+        "complaint": "Complaint Regarding [Issue]",
+        "request": "Request Regarding [Subject]",
+        "enquiry": "Enquiry Regarding [Subject]",
+        "followup": "Follow-up Regarding [Subject]",
+        "invitation": "Invitation to [Event Name]",
+        "thank_you": "Thank You for [Reason]",
+        "apology": "Apology Regarding [Matter]",
+        "feedback": "Feedback Regarding [Subject]",
+    },
+}
+
+PREDEFINED_DESCRIPTIONS = {
+    "Office & Employment": {
+        "leave_request": (
+            "I am writing to request leave from {start_date} to {end_date} "
+            "due to {main_subject}. I kindly request you to approve my leave "
+            "for the specified period. I will complete or hand over my pending "
+            "responsibilities before the leave begins."
+        ),
+        "sick_leave": (
+            "I am unable to attend work from {start_date} to {end_date} due to "
+            "{main_subject}. I request you to kindly approve my sick leave for "
+            "this period. I will resume my responsibilities as soon as I recover."
+        ),
+        "work_from_home": (
+            "I am requesting permission to work from home from {start_date} to "
+            "{end_date} due to {main_subject}. I will remain available during "
+            "working hours and ensure that all assigned responsibilities are "
+            "completed without interruption."
+        ),
+        "attendance_correction": (
+            "I am writing to request correction of my attendance record for the "
+            "period from {start_date} to {end_date}. The correction is required "
+            "because {main_subject}. Kindly review the relevant records and update "
+            "my attendance accordingly."
+        ),
+        "office_followup": (
+            "I am following up on my request submitted on {start_date} regarding "
+            "{main_subject}. As the matter remains pending, I would appreciate an "
+            "update by {end_date}. Please let me know if any additional information "
+            "is required from my side."
+        ),
+        "manager_request": (
+            "I am writing to request your assistance regarding {main_subject}. "
+            "This matter is relevant for the period from {start_date} to {end_date}. "
+            "I would appreciate your guidance and approval to proceed further."
+        ),
+        "hr_request": (
+            "I am writing to request HR assistance regarding {main_subject}. "
+            "The matter concerns the period from {start_date} to {end_date}. "
+            "Kindly review my request and advise me about the required next steps."
+        ),
+        "shift_change": (
+            "I request a change in my assigned work shift from {start_date} to "
+            "{end_date} due to {main_subject}. I will ensure that the requested "
+            "change does not affect my responsibilities or the team's work."
+        ),
+        "promotion_request": (
+            "I would like to request consideration for a promotion based on "
+            "{main_subject}. My work and contributions from {start_date} to "
+            "{end_date} demonstrate my readiness to take on additional "
+            "responsibilities. I would appreciate an opportunity to discuss this."
+        ),
+        "salary_increment": (
+            "I am writing to request a review of my compensation based on "
+            "{main_subject}. During the period from {start_date} to {end_date}, "
+            "I have consistently fulfilled my responsibilities and contributed "
+            "to the organisation's objectives. I request a discussion regarding "
+            "an appropriate salary revision."
+        ),
+        "transfer_request": (
+            "I request a transfer for the period beginning {start_date}, preferably "
+            "by {end_date}, due to {main_subject}. I will complete the necessary "
+            "handover and support a smooth transition if the request is approved."
+        ),
+        "resignation": (
+            "Please accept this message as formal notice of my resignation due to "
+            "{main_subject}. I am submitting my resignation on {start_date}, and "
+            "I request that {end_date} be considered my final working day. I will "
+            "complete the required handover during the notice period."
+        ),
+        "notice_period_negotiation": (
+            "I request a revision of my notice period from {start_date} to "
+            "{end_date} due to {main_subject}. I will complete all essential "
+            "handover activities and assist with the transition before my "
+            "proposed last working date."
+        ),
+        "experience_letter": (
+            "I request the issuance of my experience letter for my employment "
+            "period from {start_date} to {end_date}. The document is required for "
+            "{main_subject}. Kindly issue it at your earliest convenience."
+        ),
+        "relieving_letter": (
+            "I request the issuance of my relieving letter for my employment "
+            "period from {start_date} to {end_date}. The letter is required for "
+            "{main_subject}. Please let me know if any formalities remain pending."
+        ),
+        "employment_verification": (
+            "I request verification of my employment for the period from "
+            "{start_date} to {end_date}. The verification is required for "
+            "{main_subject}. Kindly provide the necessary confirmation or "
+            "documentation."
+        ),
+        "workplace_complaint": (
+            "I wish to formally report a workplace concern that occurred between "
+            "{start_date} and {end_date}. The matter concerns {main_subject}. "
+            "I request a confidential and impartial review and appropriate action "
+            "according to organisational policy."
+        ),
+    },
+
+    "Recruitment & Job Communication": {
+        "job_description_request": (
+            "I am interested in the opportunity discussed on {start_date} regarding "
+            "{main_subject}. Please share the complete job description, required "
+            "skills, responsibilities, work location, employment type and selection "
+            "process by {end_date}, if possible."
+        ),
+        "job_interest_confirmation": (
+            "I am writing to confirm my interest in the position concerning "
+            "{main_subject}. Following our discussion on {start_date}, I would "
+            "like to proceed with the recruitment process and remain available "
+            "for the next steps until {end_date}."
+        ),
+        "resume_submission": (
+            "Please find my resume and relevant professional details for the "
+            "opportunity concerning {main_subject}. I am available for the "
+            "recruitment process from {start_date} to {end_date}. I believe my "
+            "experience and skills align with the requirements of the position."
+        ),
+        "job_application": (
+            "I am applying for the position concerning {main_subject}. My relevant "
+            "experience and skills make me a suitable candidate for this opportunity. "
+            "I am available for interviews between {start_date} and {end_date} and "
+            "would appreciate your consideration of my application."
+        ),
+        "internship_application": (
+            "I am applying for the internship opportunity concerning {main_subject}. "
+            "I am available from {start_date} to {end_date} and am interested in "
+            "gaining practical experience while contributing my knowledge and skills "
+            "to the organisation."
+        ),
+        "recruiter_followup": (
+            "I am following up regarding {main_subject}, which we discussed on "
+            "{start_date}. I remain interested in the opportunity and would "
+            "appreciate an update on my application or the next selection stage "
+            "by {end_date}."
+        ),
+        "application_status_followup": (
+            "I am following up on the application I submitted on {start_date} "
+            "regarding {main_subject}. I remain interested in the opportunity and "
+            "would appreciate an update on its status by {end_date}."
+        ),
+        "interview_availability": (
+            "Thank you for considering my profile regarding {main_subject}. "
+            "I am available for an interview from {start_date} to {end_date}. "
+            "Please confirm a suitable date, time, time zone and interview platform."
+        ),
+        "interview_confirmation": (
+            "I am writing to confirm my availability for the interview scheduled "
+            "between {start_date} and {end_date} regarding {main_subject}. "
+            "Please share the meeting link, interview time and any preparation "
+            "instructions, if not already provided."
+        ),
+        "interview_rescheduling": (
+            "I request that my interview scheduled for {start_date} be rescheduled "
+            "to a suitable time on or before {end_date} due to {main_subject}. "
+            "I apologise for any inconvenience and remain interested in the position."
+        ),
+        "interview_cancellation": (
+            "I am writing to cancel my interview scheduled between {start_date} "
+            "and {end_date} due to {main_subject}. I apologise for any inconvenience "
+            "and appreciate the time given to my application."
+        ),
+        "post_interview_thank_you": (
+            "Thank you for the opportunity to interview on {start_date} regarding "
+            "{main_subject}. The discussion strengthened my interest in the role. "
+            "I appreciate your time and look forward to receiving an update by "
+            "{end_date}."
+        ),
+        "interview_feedback": (
+            "I am following up on the interview completed on {start_date} regarding "
+            "{main_subject}. I would appreciate any available feedback and an update "
+            "on the selection process by {end_date}."
+        ),
+        "next_round_followup": (
+            "I am following up regarding the next interview stage for "
+            "{main_subject}. I completed the previous stage on {start_date} and "
+            "would appreciate confirmation of the next steps by {end_date}."
+        ),
+        "salary_discussion": (
+            "I would like to discuss the compensation associated with "
+            "{main_subject}. Based on the conversation held on {start_date}, "
+            "I request clarification regarding the fixed pay, variable pay, "
+            "benefits and proposed joining terms by {end_date}."
+        ),
+        "salary_negotiation": (
+            "Thank you for sharing the compensation details on {start_date}. "
+            "I request a review of the offer based on {main_subject}. I would "
+            "appreciate the opportunity to discuss a revised compensation package "
+            "before {end_date}."
+        ),
+        "document_submission": (
+            "I am submitting the requested candidate documents concerning "
+            "{main_subject}. These documents cover the required period from "
+            "{start_date} to {end_date}. Please confirm their receipt and let me "
+            "know if any additional documentation is required."
+        ),
+        "background_verification": (
+            "Please find the information and documents required for background "
+            "verification concerning {main_subject}. The relevant verification "
+            "period is from {start_date} to {end_date}. Please let me know if any "
+            "additional clarification is needed."
+        ),
+        "reference_submission": (
+            "I am submitting the requested professional references regarding "
+            "{main_subject}. They may be contacted between {start_date} and "
+            "{end_date}. Please let me know if further information is required."
+        ),
+        "offer_letter_followup": (
+            "I am following up on the offer discussed on {start_date} regarding "
+            "{main_subject}. I remain interested in joining the organisation and "
+            "would appreciate receiving the written offer and employment terms "
+            "by {end_date}."
+        ),
+        "offer_acceptance": (
+            "I am pleased to formally accept the employment offer concerning "
+            "{main_subject}. I received the offer on {start_date} and confirm my "
+            "availability to join on {end_date}, subject to the agreed terms."
+        ),
+        "offer_rejection": (
+            "Thank you for the employment offer received on {start_date} regarding "
+            "{main_subject}. After careful consideration, I will not be able to "
+            "accept the offer by {end_date}. I appreciate the opportunity and the "
+            "time invested in the selection process."
+        ),
+        "joining_confirmation": (
+            "I am writing to confirm my joining date of {start_date} regarding "
+            "{main_subject}. I will complete the required documentation and "
+            "onboarding formalities by {end_date}. Please share any remaining "
+            "instructions."
+        ),
+        "joining_extension": (
+            "I request an extension of my joining date from {start_date} to "
+            "{end_date} due to {main_subject}. I remain committed to joining the "
+            "organisation and apologise for any inconvenience caused."
+        ),
+        "application_withdrawal": (
+            "I am writing to withdraw my application submitted on {start_date} "
+            "regarding {main_subject}, effective by {end_date}. I appreciate the "
+            "time and consideration given to my application."
+        ),
+        "referral_request": (
+            "I am seeking a professional referral regarding {main_subject}. "
+            "The application remains open from {start_date} to {end_date}. "
+            "If you find my experience suitable, I would appreciate your referral."
+        ),
+    },
+
+    "Banking & Finance": {
+        "bank_service": (
+            "I request assistance with a banking matter concerning {main_subject}. "
+            "The issue relates to the period from {start_date} to {end_date}. "
+            "Kindly review it and provide the necessary resolution."
+        ),
+        "account_statement": (
+            "Please provide my account statement for the period from {start_date} "
+            "to {end_date}. The statement is required for {main_subject}. "
+            "Kindly send it through the registered or authorised channel."
+        ),
+        "payment_issue": (
+            "I am reporting a payment issue that occurred between {start_date} and "
+            "{end_date}. The relevant details are {main_subject}. Kindly investigate "
+            "the transaction and provide a resolution."
+        ),
+        "payment_confirmation": (
+            "I am writing to confirm the payment made on {start_date} concerning "
+            "{main_subject}. Kindly verify its receipt and provide confirmation "
+            "by {end_date}."
+        ),
+        "refund_request": (
+            "I request a refund regarding {main_subject}. The relevant transaction "
+            "was initiated on {start_date}, and I request that the refund be "
+            "processed by {end_date}. Please confirm the applicable procedure."
+        ),
+        "refund_followup": (
+            "I am following up on the refund requested on {start_date} concerning "
+            "{main_subject}. As it has not yet been received, please provide its "
+            "current status and expected completion date by {end_date}."
+        ),
+        "transaction_dispute": (
+            "I wish to dispute a transaction recorded between {start_date} and "
+            "{end_date}. The reason for the dispute is {main_subject}. Kindly "
+            "investigate it and temporarily secure the account if necessary."
+        ),
+        "unauthorized_transaction": (
+            "I am reporting an unauthorised transaction identified on {start_date}. "
+            "The transaction details are {main_subject}. Please block further "
+            "unauthorised activity, investigate the matter and provide a resolution "
+            "by {end_date}."
+        ),
+        "failed_transaction": (
+            "I am reporting a failed transaction initiated on {start_date} "
+            "concerning {main_subject}. The amount has not been correctly processed "
+            "or reversed. Kindly investigate and resolve the issue by {end_date}."
+        ),
+        "loan_application": (
+            "I wish to apply for a loan concerning {main_subject}. I require the "
+            "facility from {start_date} and would appreciate a decision or update "
+            "by {end_date}. Please share the eligibility and documentation requirements."
+        ),
+        "loan_status_followup": (
+            "I am following up on my loan application submitted on {start_date} "
+            "concerning {main_subject}. Please provide its current status and any "
+            "remaining requirements by {end_date}."
+        ),
+        "insurance_claim": (
+            "I am submitting an insurance claim concerning {main_subject}. "
+            "The relevant incident or coverage period is from {start_date} to "
+            "{end_date}. Kindly acknowledge the claim and provide the next steps."
+        ),
+        "invoice_submission": (
+            "Please find the invoice concerning {main_subject} for the period from "
+            "{start_date} to {end_date}. Kindly acknowledge receipt and process it "
+            "according to the agreed payment terms."
+        ),
+        "payment_reminder": (
+            "This is a reminder regarding the outstanding payment for "
+            "{main_subject}. The payment was due on {start_date}. Kindly complete "
+            "the payment or provide a status update by {end_date}."
+        ),
+    },
+
+    "Customer & Product Service": {
+        "product_enquiry": (
+            "I would like information about {main_subject}. Please provide the "
+            "product specifications, price, availability, warranty and delivery "
+            "details for the period from {start_date} to {end_date}."
+        ),
+        "service_enquiry": (
+            "I am seeking information regarding {main_subject}. Please share the "
+            "service scope, pricing, availability and applicable terms between "
+            "{start_date} and {end_date}."
+        ),
+        "technical_support": (
+            "I require technical assistance regarding {main_subject}. The issue "
+            "started on {start_date} and remains unresolved as of {end_date}. "
+            "Kindly investigate and provide troubleshooting support."
+        ),
+        "product_complaint": (
+            "I wish to report a problem with a product concerning {main_subject}. "
+            "The issue was identified on {start_date} and continued until "
+            "{end_date}. Kindly inspect the matter and provide an appropriate solution."
+        ),
+        "service_complaint": (
+            "I wish to complain about a service issue concerning {main_subject}. "
+            "The issue occurred between {start_date} and {end_date}. Please review "
+            "the matter and provide an appropriate resolution."
+        ),
+        "complaint_escalation": (
+            "I am escalating an unresolved complaint initially reported on "
+            "{start_date} concerning {main_subject}. As it remains unresolved, "
+            "I request senior review and a final response by {end_date}."
+        ),
+        "replacement_request": (
+            "I request replacement of the product concerning {main_subject}. "
+            "The issue was reported on {start_date}. Kindly confirm replacement "
+            "eligibility and complete the process by {end_date}."
+        ),
+        "cancellation_request": (
+            "I request cancellation of the order or service concerning "
+            "{main_subject}, effective from {start_date}. Please confirm the "
+            "cancellation and any applicable refund by {end_date}."
+        ),
+        "warranty_request": (
+            "I request warranty assistance concerning {main_subject}. The issue "
+            "was identified on {start_date}, and I request service or replacement "
+            "by {end_date}. Please confirm the required procedure."
+        ),
+        "delivery_delay": (
+            "I am reporting a delay in delivery concerning {main_subject}. "
+            "The expected delivery date was {start_date}, but the order remains "
+            "pending. Kindly provide an updated status and deliver it by {end_date}."
+        ),
+        "order_status": (
+            "I request an update on the order concerning {main_subject}. "
+            "It was placed on {start_date}, and the expected completion or delivery "
+            "date is {end_date}. Please provide its current status."
+        ),
+        "service_feedback": (
+            "I would like to share feedback regarding {main_subject} based on my "
+            "experience from {start_date} to {end_date}. I hope this feedback helps "
+            "improve the quality of the product or service."
+        ),
+    },
+
+    "Study & University": {
+        "admission_enquiry": (
+            "I am seeking admission information concerning {main_subject}. "
+            "Please provide the eligibility criteria, required documents, fees and "
+            "application process for the period from {start_date} to {end_date}."
+        ),
+        "exam": (
+            "I am writing regarding an examination matter concerning "
+            "{main_subject}. The relevant examination period is from {start_date} "
+            "to {end_date}. Kindly review my request and provide guidance."
+        ),
+        "exam_leave": (
+            "I request examination leave from {start_date} to {end_date} due to "
+            "{main_subject}. I will submit the examination schedule or supporting "
+            "documents if required."
+        ),
+        "exam_schedule": (
+            "I request clarification regarding the examination schedule concerning "
+            "{main_subject}. Please confirm the dates, timings and venue for the "
+            "period from {start_date} to {end_date}."
+        ),
+        "project_submission": (
+            "I am submitting my academic project concerning {main_subject}. "
+            "The project was completed during the period from {start_date} to "
+            "{end_date}. Kindly acknowledge its receipt and advise if any correction "
+            "or additional document is required."
+        ),
+        "project_guide_followup": (
+            "I am following up regarding project guidance for {main_subject}. "
+            "The work began on {start_date}, and the expected completion date is "
+            "{end_date}. Kindly provide your review and further instructions."
+        ),
+        "practical_rescheduling": (
+            "I request that my practical examination scheduled on {start_date} "
+            "be rescheduled on or before {end_date} due to {main_subject}. "
+            "Kindly consider my request and provide an alternative schedule."
+        ),
+        "viva_rescheduling": (
+            "I request that my viva-voce scheduled on {start_date} be rescheduled "
+            "on or before {end_date} due to {main_subject}. I will remain available "
+            "on the alternative date approved by the department."
+        ),
+        "assignment_submission": (
+            "I am submitting my assignment concerning {main_subject}. "
+            "The assignment period is from {start_date} to {end_date}. "
+            "Kindly acknowledge its submission."
+        ),
+        "assignment_extension": (
+            "I request an extension of the assignment deadline from {start_date} "
+            "to {end_date} due to {main_subject}. I will complete and submit the "
+            "work within the requested extended period."
+        ),
+        "fees_payment": (
+            "I am writing regarding a fee-related matter concerning {main_subject}. "
+            "The relevant payment period is from {start_date} to {end_date}. "
+            "Kindly review the details and provide the necessary resolution."
+        ),
+        "attendance_correction": (
+            "I request correction of my academic attendance for the period from "
+            "{start_date} to {end_date}. The reason for the requested correction "
+            "is {main_subject}. Kindly verify the records and update them."
+        ),
+        "academic_complaint": (
+            "I wish to submit a formal academic complaint concerning {main_subject}. "
+            "The matter occurred between {start_date} and {end_date}. I request "
+            "a fair review and an appropriate resolution."
+        ),
+        "certificate": (
+            "I request the issuance of an academic certificate concerning "
+            "{main_subject}. The relevant academic period is from {start_date} "
+            "to {end_date}. Kindly inform me about the required procedure."
+        ),
+        "scholarship": (
+            "I am applying for a scholarship concerning {main_subject}. "
+            "The application period is from {start_date} to {end_date}. "
+            "Kindly consider my application and attached supporting documents."
+        ),
+        "recommendation_letter": (
+            "I request a letter of recommendation concerning {main_subject}. "
+            "It is required for an application open from {start_date} to "
+            "{end_date}. I would appreciate your support and recommendation."
+        ),
+    },
+
+    "Business & Corporate": {
+        "business_proposal": (
+            "I am submitting a business proposal concerning {main_subject}. "
+            "The proposed engagement would run from {start_date} to {end_date}. "
+            "I would appreciate an opportunity to discuss the scope, commercial "
+            "terms and expected outcomes."
+        ),
+        "partnership_proposal": (
+            "I would like to propose a business partnership concerning "
+            "{main_subject}. The proposed collaboration period is from "
+            "{start_date} to {end_date}. I believe this partnership can create "
+            "mutual value and welcome an opportunity to discuss it."
+        ),
+        "project_update": (
+            "This message provides an update regarding {main_subject}. "
+            "The reporting period is from {start_date} to {end_date}. "
+            "Please review the current progress, pending activities and next steps."
+        ),
+        "project_delay": (
+            "I am writing to notify you of a delay concerning {main_subject}. "
+            "The original schedule began on {start_date}, and the revised expected "
+            "completion date is {end_date}. We apologise for the inconvenience and "
+            "are taking steps to complete the pending work."
+        ),
+        "business_followup": (
+            "I am following up on our business discussion held on {start_date} "
+            "regarding {main_subject}. I would appreciate your response or proposed "
+            "next steps by {end_date}."
+        ),
+        "quotation_request": (
+            "Please provide a quotation concerning {main_subject}. The required "
+            "service or supply period is from {start_date} to {end_date}. "
+            "Kindly include pricing, taxes, delivery terms and validity."
+        ),
+        "quotation_submission": (
+            "Please find our quotation concerning {main_subject}. The quotation "
+            "covers the period from {start_date} to {end_date}. We would be pleased "
+            "to clarify the scope, pricing or commercial terms."
+        ),
+        "contract_discussion": (
+            "I would like to discuss the contractual terms concerning "
+            "{main_subject}. The proposed agreement period is from {start_date} "
+            "to {end_date}. Kindly review the scope, responsibilities, payment "
+            "terms and termination conditions."
+        ),
+        "vendor_communication": (
+            "I am writing regarding vendor services concerning {main_subject}. "
+            "The applicable period is from {start_date} to {end_date}. "
+            "Please review the requirements and confirm your ability to proceed."
+        ),
+        "mou_request": (
+            "I propose establishing a Memorandum of Understanding concerning "
+            "{main_subject}. The proposed collaboration period is from "
+            "{start_date} to {end_date}. Kindly review the proposal and confirm "
+            "a suitable time for discussion."
+        ),
+    },
+
+    "Meeting & Administration": {
+        "meeting_request": (
+            "I request a meeting regarding {main_subject}. Please schedule it at "
+            "a mutually convenient time between {start_date} and {end_date}. "
+            "The meeting will help us review the matter and agree on the next steps."
+        ),
+        "meeting_invitation": (
+            "You are invited to attend a meeting regarding {main_subject}, "
+            "scheduled between {start_date} and {end_date}. Please confirm your "
+            "availability and review any shared agenda or supporting documents."
+        ),
+        "meeting_confirmation": (
+            "This message confirms the meeting regarding {main_subject}. "
+            "The confirmed meeting period is between {start_date} and {end_date}. "
+            "Please join using the shared meeting details."
+        ),
+        "meeting_rescheduling": (
+            "I request that the meeting scheduled on {start_date} regarding "
+            "{main_subject} be rescheduled to a suitable time on or before "
+            "{end_date}. I apologise for any inconvenience."
+        ),
+        "meeting_cancellation": (
+            "This is to inform you that the meeting scheduled between {start_date} "
+            "and {end_date} regarding {main_subject} has been cancelled. "
+            "A revised schedule will be shared if required."
+        ),
+        "meeting_agenda": (
+            "The meeting scheduled between {start_date} and {end_date} will discuss "
+            "{main_subject}. Participants are requested to review the relevant "
+            "documents and prepare any updates or decisions required."
+        ),
+        "mom_internal": (
+            "This document records the minutes of the internal meeting conducted "
+            "between {start_date} and {end_date} regarding {main_subject}. "
+            "It summarises the discussion, decisions, responsibilities and deadlines."
+        ),
+        "mom_client": (
+            "This document records the minutes of the client meeting conducted "
+            "between {start_date} and {end_date} regarding {main_subject}. "
+            "It summarises the agreed requirements, decisions and action items."
+        ),
+        "mom_project": (
+            "This document records the project meeting held between {start_date} "
+            "and {end_date} regarding {main_subject}. It summarises progress, "
+            "issues, decisions, owners and delivery deadlines."
+        ),
+        "mom_review": (
+            "This document records the review meeting held between {start_date} "
+            "and {end_date} regarding {main_subject}. It captures the review "
+            "observations, decisions, corrective actions and responsible persons."
+        ),
+        "action_item_summary": (
+            "The following action items arise from the discussion held between "
+            "{start_date} and {end_date} regarding {main_subject}. Each assigned "
+            "owner should complete the relevant task within the agreed deadline."
+        ),
+        "meeting_followup": (
+            "I am following up on the meeting held on {start_date} regarding "
+            "{main_subject}. Kindly provide the pending updates and complete the "
+            "agreed actions by {end_date}."
+        ),
+        "general_application": (
+            "I am submitting this application regarding {main_subject}. "
+            "The request applies from {start_date} to {end_date}. Kindly review "
+            "the information and provide the required approval or response."
+        ),
+        "permission_application": (
+            "I request permission regarding {main_subject} for the period from "
+            "{start_date} to {end_date}. I will follow all applicable instructions "
+            "and conditions if permission is granted."
+        ),
+        "complaint_application": (
+            "I am submitting a formal complaint regarding {main_subject}. "
+            "The issue occurred between {start_date} and {end_date}. Kindly "
+            "investigate the matter and provide an appropriate resolution."
+        ),
+    },
+
+    "General": {
+        "help": (
+            "I am writing to request assistance regarding {main_subject}. "
+            "The matter concerns the period from {start_date} to {end_date}. "
+            "Kindly review my request and provide the necessary guidance."
+        ),
+        "complaint": (
+            "I wish to submit a complaint regarding {main_subject}. The issue "
+            "occurred between {start_date} and {end_date}. Kindly investigate "
+            "the matter and provide an appropriate resolution."
+        ),
+        "request": (
+            "I am writing to submit a request regarding {main_subject}. "
+            "The request applies from {start_date} to {end_date}. Kindly consider "
+            "it and provide your approval or response."
+        ),
+        "enquiry": (
+            "I am seeking information regarding {main_subject}. Please provide "
+            "the relevant details for the period from {start_date} to {end_date}."
+        ),
+        "followup": (
+            "I am following up regarding {main_subject}. The matter has been "
+            "pending since {start_date}, and I would appreciate an update by "
+            "{end_date}."
+        ),
+        "invitation": (
+            "You are cordially invited regarding {main_subject}. The event or "
+            "activity is scheduled between {start_date} and {end_date}. "
+            "Please confirm your availability."
+        ),
+        "thank_you": (
+            "I would like to express my sincere appreciation regarding "
+            "{main_subject}. Your support between {start_date} and {end_date} "
+            "was valuable and greatly appreciated."
+        ),
+        "apology": (
+            "I sincerely apologise regarding {main_subject}. The matter occurred "
+            "between {start_date} and {end_date}. I accept responsibility and "
+            "will take appropriate steps to prevent it from happening again."
+        ),
+        "feedback": (
+            "I would like to share my feedback regarding {main_subject}, based on "
+            "my experience from {start_date} to {end_date}. I hope this feedback "
+            "will support future improvement."
+        ),
+    },
+}
+
+DEFAULT_DESCRIPTION = (
+    "I am writing regarding {main_subject}. The matter concerns the period "
+    "from {start_date} to {end_date}. Kindly review the information and provide "
+    "the necessary guidance, approval or resolution. Please let me know if any "
+    "additional details or supporting documents are required from my side."
+)
 
 def db_connection():
     connection = sqlite3.connect(DB_PATH, timeout=30)
@@ -573,6 +1681,59 @@ def writing_by_id(writing_id):
 
 
 init_db()
+
+def format_date(date_value):
+    """
+    Converts 2026-07-15 into 15 July 2026.
+    Returns 'Not specified' when the date is empty.
+    """
+    if not date_value:
+        return "Not specified"
+
+    try:
+        parsed_date = datetime.strptime(date_value, "%Y-%m-%d")
+        return parsed_date.strftime("%d %B %Y")
+    except (ValueError, TypeError):
+        return str(date_value)
+
+
+def generate_predefined_content(
+    area,
+    category_key,
+    start_date,
+    end_date,
+    main_subject
+):
+    title_template = (
+        PREDEFINED_TITLES
+        .get(area, {})
+        .get(category_key)
+    )
+
+    if not title_template:
+        category_label = (
+            CATEGORY_TREE
+            .get(area, {})
+            .get(category_key, category_key.replace("_", " ").title())
+        )
+        title_template = f"Regarding {category_label}"
+
+    description_template = (
+        PREDEFINED_DESCRIPTIONS
+        .get(area, {})
+        .get(category_key, DEFAULT_DESCRIPTION)
+    )
+
+    values = {
+        "start_date": format_date(start_date),
+        "end_date": format_date(end_date),
+        "main_subject": main_subject.strip() or "the stated matter",
+    }
+
+    return {
+        "title": title_template,
+        "description": description_template.format(**values),
+    }
 
 
 @app.route("/")
@@ -1050,6 +2211,42 @@ def uploaded_file(filename):
         return redirect(url_for("dashboard"))
     return send_file(file_path)
 
+@app.post("/generate-predefined-content")
+@login_required
+def generate_content():
+    data = request.get_json(silent=True) or request.form
+
+    area = data.get("area", "")
+    category_key = data.get("category", "")
+    start_date = data.get("start_date", "")
+    end_date = data.get("end_date", "")
+    main_subject = data.get("main_subject", "")
+
+    if area not in CATEGORY_TREE:
+        return jsonify({
+            "success": False,
+            "error": "Please select a valid area."
+        }), 400
+
+    if category_key not in CATEGORY_TREE[area]:
+        return jsonify({
+            "success": False,
+            "error": "Please select a valid category."
+        }), 400
+
+    content = generate_predefined_content(
+        area=area,
+        category_key=category_key,
+        start_date=start_date,
+        end_date=end_date,
+        main_subject=main_subject
+    )
+
+    return jsonify({
+        "success": True,
+        "title": content["title"],
+        "description": content["description"]
+    })
 
 @app.errorhandler(413)
 def too_large(_):
