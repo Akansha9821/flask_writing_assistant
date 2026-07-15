@@ -67,7 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
           category: category.value,
           start_date: document.getElementById("startDate").value,
           end_date: document.getElementById("endDate").value,
-          main_subject: mainSubject.value
+          main_subject: mainSubject.value,
+          language: language.value
         })
       });
       const result = await response.json();
@@ -89,6 +90,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }));
   category.addEventListener("change", requestSuggestion);
   group.addEventListener("change", requestSuggestion);
+  const applyWritingDirection = () => {
+    const isRtl = ["ar", "ur"].includes(language.value);
+    subject.dir = isRtl ? "rtl" : "ltr";
+    editor.dir = isRtl ? "rtl" : "ltr";
+  };
+  language.addEventListener("change", () => {
+    applyWritingDirection();
+    requestSuggestion();
+  });
+  applyWritingDirection();
   requestSuggestion();
   const voiceButton = document.getElementById("voiceButton");
   const voiceStatus = document.getElementById("voiceStatus");

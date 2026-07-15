@@ -2221,6 +2221,7 @@ def generate_content():
     start_date = data.get("start_date", "")
     end_date = data.get("end_date", "")
     main_subject = data.get("main_subject", "")
+    language = data.get("language", "en")
 
     if area not in CATEGORY_TREE:
         return jsonify({
@@ -2234,6 +2235,12 @@ def generate_content():
             "error": "Please select a valid category."
         }), 400
 
+    if language not in LANGUAGES:
+        return jsonify({
+            "success": False,
+            "error": "Please select a valid language."
+        }), 400
+
     content = generate_predefined_content(
         area=area,
         category_key=category_key,
@@ -2242,10 +2249,14 @@ def generate_content():
         main_subject=main_subject
     )
 
+    content["title"] = translate_text(content["title"], language)
+    content["description"] = translate_text(content["description"], language)
+
     return jsonify({
         "success": True,
         "title": content["title"],
-        "description": content["description"]
+        "description": content["description"],
+        "language": language
     })
 
 @app.errorhandler(413)
